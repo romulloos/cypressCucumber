@@ -17,10 +17,8 @@ module.exports = defineConfig({
       );
       return config;
     },
-    specPattern: 'cypress/e2e/**/*.feature',
-    env: {
-      stepDefinitions: 'cypress/e2e/step_definitions/**/*.{js,ts}',
-    },
+    specPattern: 'cypress/e2e/**/*.feature', 
+    stepDefinitions: 'cypress/e2e/**/*.{js,ts}',
   },
   video: false,
 });
