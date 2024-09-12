@@ -19,7 +19,7 @@ describe('Validar atualização de imagem de produto', () => {
     Before(() => {
         cy.request({
             method: 'POST',
-            url: `https://www.advantageonlineshopping.com/accountservice/accountrest/api/v1/login`,
+            url: `/accountservice/accountrest/api/v1/login`,
             headers: {
                 accept: "*/*",
                 'Content-Type': "application/json",
@@ -43,7 +43,7 @@ describe('Validar atualização de imagem de produto', () => {
     Given('que o produto esteja cadastrado na base', () => {
         cy.request({
             method: 'GET',
-            url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/search?name=${name}&quantityPerEachCategory=${quantityPerEachCategory}`,
+            url: `/catalog/api/v1/products/search?name=${name}&quantityPerEachCategory=${quantityPerEachCategory}`,
             headers: {
                 accept: "*/*",
             },
@@ -62,7 +62,7 @@ describe('Validar atualização de imagem de produto', () => {
 
         cy.request({
             method: 'GET',
-            url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/${productId}`,
+            url: `/catalog/api/v1/products/${productId}`,
             headers: {
                 accept: "*/*",
             },
@@ -81,7 +81,7 @@ describe('Validar atualização de imagem de produto', () => {
             formData.append('file', fileContent, 'headphoneback.jpg')
             cy.request({
                 method: "POST",
-                url: `https://www.advantageonlineshopping.com/catalog/api/v1/product/image/${userId}/${source}/${color}?product_id=${productId}`,
+                url: `/catalog/api/v1/product/image/${userId}/${source}/${color}?product_id=${productId}`,
                 headers: {
                     accept: '*/*',
                     Authorization: `Bearer ${token}`,
@@ -106,7 +106,7 @@ describe('Validar atualização de imagem de produto', () => {
     Then('deve encontrar a nova imagem que foi incluida', () => {
         cy.request({
             method: 'GET',
-            url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/${productId}`,
+            url: `/catalog/api/v1/products/${productId}`,
             headers: {
                 accept: "*/*",
             },

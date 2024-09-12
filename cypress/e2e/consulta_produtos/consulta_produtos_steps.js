@@ -7,7 +7,7 @@ describe('Validar consulta do produto HeadPhone H2310', () => {
         let quantityPerEachCategory = 1;
         cy.request({
             method: 'GET',
-            url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/search?name=${name}&quantityPerEachCategory=${quantityPerEachCategory}`,
+            url: `/catalog/api/v1/products/search?name=${name}&quantityPerEachCategory=${quantityPerEachCategory}`,
             headers: {
                 accept: "*/*",
             },
