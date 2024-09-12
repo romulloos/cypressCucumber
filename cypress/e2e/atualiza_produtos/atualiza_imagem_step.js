@@ -2,7 +2,6 @@
 
 import { Before ,Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 
-
 describe('Validar atualização de imagem de produto', () => {
     let token = 0;
     let userId = 0;
@@ -15,6 +14,7 @@ describe('Validar atualização de imagem de produto', () => {
     let quantityPerEachCategory = -1;
     let productId = 12;
     let productImageId = 0;
+    let amountImages = 0;
 
     Before(() => {
         cy.request({
@@ -58,13 +58,22 @@ describe('Validar atualização de imagem de produto', () => {
                     }
                 });
             });
+        });
 
+        cy.request({
+            method: 'GET',
+            url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/${productId}`,
+            headers: {
+                accept: "*/*",
+            },
+        }).then((response) => {
+            amountImages = response.body.images.length;
+            cy.log("amountImages", amountImages)        
         });
     });
 
     When('incluir uma imagem', () => {
         const imagePath = 'headphoneback.jpg';
-        
         cy.fixture(imagePath, 'binary')
         .then(Cypress.Blob.binaryStringToBlob)
         .then(fileContent => {
@@ -81,9 +90,7 @@ describe('Validar atualização de imagem de produto', () => {
                 body: formData,
                 encoding: 'binary',
             }).as('responseImage');
-        })
-
-        
+        }); 
     });
 
     Then('a resposta deve ter o status 200', () => {
@@ -92,8 +99,7 @@ describe('Validar atualização de imagem de produto', () => {
             const decoder = new TextDecoder('utf-8');
             const responseText = decoder.decode(response.body);
             const responseData = JSON.parse(responseText);
-            productImageId = responseData.body;
-            cy.log("productImageId", responseData);
+            productImageId = responseData.imageId;
         });
     });
 
@@ -105,12 +111,10 @@ describe('Validar atualização de imagem de produto', () => {
                 accept: "*/*",
             },
         }).then((response) => {
-            response.body.images.forEach(images => {
-                const imageslist = images;
-            expect(imageslist).to.contains(imageId);
-            //validar usando a quantidade de intens no array images
-            });
-            
+            expect(response.body.images.length).to.be.equal(amountImages + 1);
+            const imagesArray = response.body.images;
+            const expectedImage = `${color}##${productImageId}`;
+            expect(imagesArray).to.include(expectedImage);
         });
     });
 });
