@@ -1,4 +1,4 @@
-# cypress/e2e/api.feature
+# cypress/e2e/atualiza_produtos.feature
 
 Feature: Atualiza produtos
 

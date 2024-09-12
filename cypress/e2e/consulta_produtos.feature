@@ -1,4 +1,4 @@
-# cypress/e2e/api.feature
+# cypress/e2e/consulta_produtos.feature
 
 Feature: Consulta de produtos
 
