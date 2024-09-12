@@ -1,6 +1,6 @@
 /// <reference types= 'cypress'/>
 
-import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
+import { Before ,Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 
 
 describe('Validar atualização de imagem de produto', () => {
@@ -16,8 +16,7 @@ describe('Validar atualização de imagem de produto', () => {
     let productId = 12;
     let productImageId = 0;
 
-    before(() => {
-
+    Before(() => {
         cy.request({
             method: 'POST',
             url: `https://www.advantageonlineshopping.com/accountservice/accountrest/api/v1/login`,
@@ -35,6 +34,8 @@ describe('Validar atualização de imagem de produto', () => {
             expect(response.body.statusMessage.reason).to.be.include("Login Successful");
             token = response.body.statusMessage.token;
             userId = response.body.statusMessage.userId;
+            cy.log("userId: ", userId)
+            cy.log("token", token)
         });
 
     });
@@ -53,6 +54,7 @@ describe('Validar atualização de imagem de produto', () => {
                     if (products.productId === 12) {
                         expect(products.productId).to.be.equal(12);
                         productId = products.productId;
+                        cy.log("productId", productId)
                     }
                 });
             });
@@ -62,46 +64,53 @@ describe('Validar atualização de imagem de produto', () => {
 
     When('incluir uma imagem', () => {
         const imagePath = 'headphoneback.jpg';
-        cy.fixture(imagePath, 'binary').then((fileContent) => {
+        
+        cy.fixture(imagePath, 'binary')
+        .then(Cypress.Blob.binaryStringToBlob)
+        .then(fileContent => {
             const formData = new FormData();
-            const blob = Cypress.Blob.binaryStringToBlob(fileContent, 'image/jpeg');
-            formData.append('file', blob, imagePath);
-
+            formData.append('file', fileContent, 'headphoneback.jpg')
             cy.request({
                 method: "POST",
                 url: `https://www.advantageonlineshopping.com/catalog/api/v1/product/image/${userId}/${source}/${color}?product_id=${productId}`,
                 headers: {
-                    token: `Bearer ${token}`,
+                    accept: '*/*',
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
                 body: formData,
-                form: false,
-                json: false,
-            }).then((response) => {
-                expect(response.status).to.be.equal(200);
-                expect(response.body.success).to.be.true
-            })
-        });
+                encoding: 'binary',
+            }).as('responseImage');
+        })
 
+        
+    });
+
+    Then('a resposta deve ter o status 200', () => {
+        cy.get('@responseImage').then((response) => {
+            expect(response.status).to.be.equal(200);
+            const decoder = new TextDecoder('utf-8');
+            const responseText = decoder.decode(response.body);
+            const responseData = JSON.parse(responseText);
+            productImageId = responseData.body;
+            cy.log("productImageId", responseData);
+        });
+    });
+
+    Then('deve encontrar a nova imagem que foi incluida', () => {
         cy.request({
             method: 'GET',
             url: `https://www.advantageonlineshopping.com/catalog/api/v1/products/${productId}`,
             headers: {
                 accept: "*/*",
             },
-        }).as('responseImage')
-    });
-
-    Then('a resposta deve ter o status 200', () => {
-        cy.get('@responseImage').then((response) => {
-            expect(response.status).to.be.equal(200);
-        });
-    });
-
-    Then('deve encontrar a nova imagem que foi incluida', () => {
-        cy.get('@responseImage').then((response) => {
-            const imageslist = response.body.images;
-            expect(imageslist).to.contains("custom_image_local_362e7f36-6879-4ba2-970d-f86cfa8d0bd9");
+        }).then((response) => {
+            response.body.images.forEach(images => {
+                const imageslist = images;
+            expect(imageslist).to.contains(imageId);
+            //validar usando a quantidade de intens no array images
+            });
+            
         });
     });
 });
