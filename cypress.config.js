@@ -12,7 +12,7 @@ module.exports = defineConfig({
       await addCucumberPreprocessorPlugin(on, config);
       on('file:preprocessor', cucumber());
     },
-    specPattern: 'cypress/e2e/*.feature', 
+    specPattern: 'cypress/e2e/**/*.feature', 
   },
   video: false,
 });
